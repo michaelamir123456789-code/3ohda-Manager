@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3ohda Manager – Shareable Link</title>
+    <!-- LZ-String for compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ─── DASHBOARD SELECTION OVERLAY ──────────────────────── -->
+<div id="dashboardOverlay" class="overlay">
+    <div class="overlay-box">
+        <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:6px;">
+            <svg class="logo-mark" viewBox="0 0 40 40" role="img" aria-label="Event Manager logo" focusable="false" style="width:48px; height:48px;">
+                <rect x="8" y="6" width="24" height="30" rx="4" fill="#14283a"/>
+                <rect x="15" y="3" width="10" height="6" rx="2" fill="#b8863e"/>
+                <rect x="12" y="15" width="16" height="2.4" rx="1.2" fill="#eef2f5"/>
+                <rect x="12" y="21" width="16" height="2.4" rx="1.2" fill="#eef2f5"/>
+                <rect x="12" y="27" width="11" height="2.4" rx="1.2" fill="#eef2f5"/>
+            </svg>
+            <h2>3ohda Manager</h2>
+        </div>
+        <p class="sub">Create a new dashboard or join an existing one</p>
+        <div id="dashboardError" class="error" role="alert"></div>
+
+        <div id="createSection" style="margin-bottom:12px;">
+            <input type="text" id="createCode" placeholder="Create a new dashboard code (e.g. ABC123)" maxlength="6" style="text-transform:uppercase;" />
+            <button id="createBtn" class="btn btn-secondary">＋ Create Dashboard</button>
+        </div>
+
+        <div style="margin: 20px 0; border-bottom: 1px solid var(--line);"></div>
+
+        <div id="joinSection">
+            <input type="text" id="joinCode" placeholder="Enter dashboard code (e.g. ABC123)" maxlength="6" style="text-transform:uppercase;" />
+            <button id="joinBtn" class="btn">Join Dashboard</button>
+        </div>
+
+        <div class="footnote">Dashboards are stored in your browser. Share the link (with the code) to collaborate.</div>
+    </div>
+</div>
+
+<!-- ─── MAIN APP ─────────────────────────────────────────── -->
+<div id="appContainer">
+    <div class="container">
+        <div class="main-header">
+            <div class="title-group">
+                <svg class="logo-mark" viewBox="0 0 40 40" role="img" aria-label="Event Manager logo" focusable="false" style="width:40px; height:40px;">
+                    <rect x="8" y="6" width="24" height="30" rx="4" fill="#14283a"/>
+                    <rect x="15" y="3" width="10" height="6" rx="2" fill="#b8863e"/>
+                    <rect x="12" y="15" width="16" height="2.4" rx="1.2" fill="#eef2f5"/>
+                    <rect x="12" y="21" width="16" height="2.4" rx="1.2" fill="#eef2f5"/>
+                    <rect x="12" y="27" width="11" height="2.4" rx="1.2" fill="#eef2f5"/>
+                </svg>
+                <h1>
+                    3ohda Manager
+                    <small id="tableCount">0 tables</small>
+                </h1>
+            </div>
+            <div class="user-group">
+                <span class="room-code" id="roomCodeDisplay">📋</span>
+                <span class="user-name" id="userDisplay">👤 Your Name</span>
+                <button id="changeNameBtn" class="btn-logout">✏️ Name</button>
+                <button id="shareBtn" class="btn-logout">🔗 Share</button>
+                <button id="resetBtn" class="btn-logout">♻️ Reset</button>
+                <button id="auditLogBtn">📜 Log</button>
+            </div>
+        </div>
+        <div class="subtitle">🌐 Workspace stored locally – share the link to collaborate.</div>
+
+        <div class="table-mgmt">
+            <div class="create-row">
+                <input type="text" id="newTableName" placeholder="New table name" maxlength="60" />
+                <button id="createTableBtn">＋ Create Table</button>
+            </div>
+            <div class="tabs" id="tabsContainer">
+                <span class="empty-tabs-msg" id="noTablesMsg">No tables yet. Create one above.</span>
+            </div>
+        </div>
+
+        <div class="item-form" id="itemForm">
+            <div class="field">
+                <label for="itemName">Item name</label>
+                <input type="text" id="itemName" placeholder="e.g. Plates" autocomplete="off" maxlength="80" />
+            </div>
+            <div class="field">
+                <label for="itemQty">Quantity</label>
+                <input type="number" id="itemQty" placeholder="1" min="1" max="100000" value="1" />
+            </div>
+            <button class="btn-add" id="addBtn">＋ Add Item</button>
+        </div>
+
+        <div class="actions-bar">
+            <span class="count" id="totalItems">Total: 0</span>
+            <div class="right-group">
+                <button class="btn-report" id="reportBtn">📊 Report</button>
+                <button class="btn-clear" id="clearBtn">✕ Clear</button>
+            </div>
+        </div>
+
+        <div class="list-wrapper">
+            <div class="list-header">
+                <span>Item</span>
+                <span class="text-center">Qty</span>
+                <span class="text-center">Action</span>
+            </div>
+            <ul class="item-list" id="itemList"></ul>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="reportModal">
+    <div class="modal-box">
+        <h2>📊 Full Report <button class="close-modal" id="closeReportBtn">✕</button></h2>
+        <div class="report-scroll" id="reportContent"></div>
+    </div>
+</div>
+<div class="modal-overlay" id="auditModal">
+    <div class="modal-box">
+        <h2>📜 Audit Log <button class="close-modal" id="closeAuditBtn">✕</button></h2>
+        <div class="report-scroll" id="auditContent"></div>
+        <button id="clearAuditBtn" class="btn-clear-audit">🗑️ Clear Log</button>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="script.js" defer></script>
+</body>
+</html>
